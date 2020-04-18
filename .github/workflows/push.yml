@@ -19,6 +19,6 @@ jobs:
       - name: make install_ubuntu build
         run: make install_ubuntu build
       - name: Publish
-        uses: menduz/oddish-action@1.0.0
+        uses: menduz/oddish-action@1.0.1
         with:
           npmToken: ${{ secrets.NPM_TOKEN }}
