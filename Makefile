@@ -17,7 +17,7 @@ build:
 
 watch_sources: export NODE_ENV=development
 watch_sources:
-	$(BUILDER)
+	$(BUILDER) --watch
 
 update_ulla:
 	npm i -S ulla-compiler@next ulla-ecs@next

@@ -1,20 +1,20 @@
-import { ConnectionSystem } from "./sdk/Systems/Connection";
-import { InvisibleSystem } from "./sdk/Systems/Invisible";
-import { MeditationSystem } from "./sdk/Systems/Meditation";
-import { ParalysisSystem } from "./sdk/Systems/Paralysis";
-import { InventorySystem } from "./sdk/Systems/Inventory";
-import { CombatSystem } from "./sdk/Systems/Combat";
-import { SkillSystem } from "./sdk/Systems/Skill";
-import { GameMapSystem } from "./sdk/Systems/GameMap";
+import { ConnectionSystem } from "./Systems/Connection";
+import { InvisibleSystem } from "./Systems/Invisible";
+import { MeditationSystem } from "./Systems/Meditation";
+import { ParalysisSystem } from "./Systems/Paralysis";
+import { InventorySystem } from "./Systems/Inventory";
+import { CombatSystem } from "./Systems/Combat";
+import { SkillSystem } from "./Systems/Skill";
+import { GameMapSystem } from "./Systems/GameMap";
 import {
   Character,
   onNewCharacterObservable,
-} from "./sdk/Components/Character";
-import { Connection } from "./sdk/Components/Connection";
-import { loadBalance } from "./sdk/Balance";
-import { WalkingSystem } from "./sdk/Systems/WalkingSystem";
-import { MimetismSystem } from "./sdk/Systems/Mimetism";
-import { TimersSystem } from "./sdk/Systems/Timers";
+} from "./Components/Character";
+import { Connection } from "./Components/Connection";
+import { loadBalance } from "./Balance";
+import { WalkingSystem } from "./Systems/WalkingSystem";
+import { MimetismSystem } from "./Systems/Mimetism";
+import { TimersSystem } from "./Systems/Timers";
 
 export function startBaseSystems() {
   engine.addSystem(new InvisibleSystem());
@@ -28,8 +28,8 @@ export function startBaseSystems() {
   engine.addSystem(new WalkingSystem());
 }
 
-export declare function callRpc(): void;
-export declare function onUpdate(cb: (dt: number) => void): void;
+declare function callRpc(): void;
+declare function onUpdate(cb: (dt: number) => void): void;
 
 export async function startServer(customServer: () => Promise<void>) {
   if (typeof callRpc !== "undefined") {
