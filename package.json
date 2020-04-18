@@ -11,5 +11,9 @@
   "dependencies": {
     "ulla-compiler": "^1.0.0-20200418174619.commit-d7f1baa",
     "ulla-ecs": "^1.0.0-20200418174613.commit-d7f1baa"
-  }
+  },
+  "files": [
+    "modules",
+    "dist"
+  ]
 }
