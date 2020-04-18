@@ -20,5 +20,5 @@ jobs:
         run: make install_ubuntu build
       - name: Publish
         uses: menduz/oddish-action@master
-        with:
-          npmToken: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
