@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "outFile": "./dist/arduz-sdk.js",
+    "noUnusedLocals": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "useDefineForClassFields": false,
+    "preserveConstEnums": true,
+    "alwaysStrict": true,
+    "declaration": true,
+    "typeRoots": [
+      "./node_modules/ulla-ecs/types",
+      "./modules"
+    ]
+  },
+  "extends": "./node_modules/ulla-ecs/types/tsconfig.json",
+  "exclude": ["dist"]
+}

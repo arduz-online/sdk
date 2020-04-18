@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - master
+  release:
+    types:
+      - created
+
+name: Deploy
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: make install_ubuntu build
+        run: make install_ubuntu build
+      - name: Publish
+        uses: menduz/oddish-action@1.0.0
+        with:
+          npmToken: ${{ secrets.NPM_TOKEN }}

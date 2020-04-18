@@ -1,0 +1,15 @@
+{
+  "name": "arduz-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/arduz-sdk.js",
+  "typings": "dist/arduz-sdk.d.ts",
+  "scripts": {},
+  "keywords": [],
+  "author": "menduz",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ulla-compiler": "^1.0.0-20200416215845.commit-264d6db",
+    "ulla-ecs": "^1.0.0-20200416215839.commit-264d6db"
+  }
+}
