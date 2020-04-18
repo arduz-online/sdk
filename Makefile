@@ -14,6 +14,7 @@ install:
 build: export NODE_ENV=production
 build:
 	$(BUILDER)
+	cp -r node_modules/ulla-ecs/types types
 
 watch_sources: export NODE_ENV=development
 watch_sources:
