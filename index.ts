@@ -1,20 +1,20 @@
-import { ConnectionSystem } from "./src/Systems/Connection";
-import { InvisibleSystem } from "./src/Systems/Invisible";
-import { MeditationSystem } from "./src/Systems/Meditation";
-import { ParalysisSystem } from "./src/Systems/Paralysis";
-import { InventorySystem } from "./src/Systems/Inventory";
-import { CombatSystem } from "./src/Systems/Combat";
-import { SkillSystem } from "./src/Systems/Skill";
-import { GameMapSystem } from "./src/Systems/GameMap";
+import { ConnectionSystem } from "./sdk/Systems/Connection";
+import { InvisibleSystem } from "./sdk/Systems/Invisible";
+import { MeditationSystem } from "./sdk/Systems/Meditation";
+import { ParalysisSystem } from "./sdk/Systems/Paralysis";
+import { InventorySystem } from "./sdk/Systems/Inventory";
+import { CombatSystem } from "./sdk/Systems/Combat";
+import { SkillSystem } from "./sdk/Systems/Skill";
+import { GameMapSystem } from "./sdk/Systems/GameMap";
 import {
   Character,
   onNewCharacterObservable,
-} from "./src/Components/Character";
-import { Connection } from "./src/Components/Connection";
-import { loadBalance } from "./src/Balance";
-import { WalkingSystem } from "./src/Systems/WalkingSystem";
-import { MimetismSystem } from "./src/Systems/Mimetism";
-import { TimersSystem } from "./src/Systems/Timers";
+} from "./sdk/Components/Character";
+import { Connection } from "./sdk/Components/Connection";
+import { loadBalance } from "./sdk/Balance";
+import { WalkingSystem } from "./sdk/Systems/WalkingSystem";
+import { MimetismSystem } from "./sdk/Systems/Mimetism";
+import { TimersSystem } from "./sdk/Systems/Timers";
 
 export function startBaseSystems() {
   engine.addSystem(new InvisibleSystem());
