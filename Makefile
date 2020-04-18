@@ -10,7 +10,6 @@ install_ubuntu: install
 
 install:
 	npm install
-	npm i ts-protoc-gen -g
 
 build: export NODE_ENV=production
 build:

@@ -9,7 +9,7 @@
   "author": "menduz",
   "license": "Apache-2.0",
   "dependencies": {
-    "ulla-compiler": "^1.0.0-20200416215845.commit-264d6db",
-    "ulla-ecs": "^1.0.0-20200416215839.commit-264d6db"
+    "ulla-compiler": "^1.0.0-20200418174619.commit-d7f1baa",
+    "ulla-ecs": "^1.0.0-20200418174613.commit-d7f1baa"
   }
 }
