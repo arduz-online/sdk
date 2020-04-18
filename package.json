@@ -9,8 +9,8 @@
   "author": "menduz",
   "license": "Apache-2.0",
   "devDependencies": {
-    "ulla-compiler": "^1.0.0-20200418174619.commit-d7f1baa",
-    "ulla-ecs": "^1.0.0-20200418174613.commit-d7f1baa"
+    "ulla-builder": "^1.0.0-20200418230616.commit-58801d7",
+    "ulla-ecs": "^1.0.0-20200418230559.commit-58801d7"
   },
   "files": [
     "modules",
