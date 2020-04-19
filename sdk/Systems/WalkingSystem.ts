@@ -27,45 +27,43 @@ export class WalkingSystem implements ISystem {
 
       let forceUpdate = false;
 
-      if (!timers || timers.canWalk()) {
-        if (isParalyzed(entity)) {
-          forceUpdate = true;
+      if (isParalyzed(entity)) {
+        forceUpdate = true;
+      } else {
+        if (walking.target) {
+          const newHeading = this.greedyWalkTo(
+            position.x,
+            position.y,
+            walking.target.x,
+            walking.target.y
+          );
+          if (newHeading !== null) {
+            walking.heading = newHeading;
+          }
+        }
+
+        if (this.canUserMove(position.x, position.y, walking.heading)) {
+          let newPos = headToPos(position.x, position.y, walking.heading);
+          position.x = newPos.x;
+          position.y = newPos.y;
+
+          position.enqueueSendToAreaButMe({
+            CharMove: {
+              entityId: entity.uuid,
+              x: position.x,
+              y: position.y,
+              heading: walking.heading,
+            },
+          });
+
+          position.dirty = false;
         } else {
-          if (walking.target) {
-            const newHeading = this.greedyWalkTo(
-              position.x,
-              position.y,
-              walking.target.x,
-              walking.target.y
-            );
-            if (newHeading !== null) {
-              walking.heading = newHeading;
-            }
-          }
-
-          if (this.canUserMove(position.x, position.y, walking.heading)) {
-            let newPos = headToPos(position.x, position.y, walking.heading);
-            position.x = newPos.x;
-            position.y = newPos.y;
-
-            position.enqueueSendToAreaButMe({
-              CharMove: {
-                entityId: entity.uuid,
-                x: position.x,
-                y: position.y,
-                heading: walking.heading,
-              },
-            });
-
-            position.dirty = false;
-          } else {
-            forceUpdate = true;
-          }
+          forceUpdate = true;
         }
+      }
 
-        if (timers) {
-          timers.didWalk();
-        }
+      if (timers) {
+        timers.canWalk(true);
       }
 
       if (forceUpdate && entity.hasComponent(Connection)) {

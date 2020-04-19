@@ -5,6 +5,7 @@ import { Body, DEAD_HEAD, DEAD_BODY } from "../Components/Body";
 import { MapData } from "../Components/MapData";
 import { HeadingComponent } from "../Components/Heading";
 import { Fx } from "../Components/Fx";
+import { CharStatus } from "../Components/CharStatus";
 
 export class GameMapSystem implements ISystem {
   private mapEntities!: ComponentGroup;
@@ -16,12 +17,16 @@ export class GameMapSystem implements ISystem {
   private addEntityWithFx = (entity: IEntity) => {
     const position = entity.getComponent(WorldPosition);
     const fx = entity.getComponent(Fx);
-    this.sendToArea(position.x, position.y, [{ Fx: { entityId: entity.uuid, fx: fx.fx, loops: fx.loops } }]);
+    this.sendToArea(position.x, position.y, [
+      { Fx: { entityId: entity.uuid, fx: fx.fx, loops: fx.loops } },
+    ]);
   };
 
   private removeEntityWithFx = (entity: IEntity) => {
     const position = entity.getComponent(WorldPosition);
-    this.sendToArea(position.x, position.y, [{ Fx: { entityId: entity.uuid, fx: 0, loops: 0 } }]);
+    this.sendToArea(position.x, position.y, [
+      { Fx: { entityId: entity.uuid, fx: 0, loops: 0 } },
+    ]);
   };
 
   activate(engine: Engine) {
@@ -34,7 +39,10 @@ export class GameMapSystem implements ISystem {
       WorldPosition,
       Fx
     );
-    this.connectedEntities = engine.getComponentGroup(WorldPosition, Connection);
+    this.connectedEntities = engine.getComponentGroup(
+      WorldPosition,
+      Connection
+    );
 
     log("GameMapSystem started");
   }
@@ -46,15 +54,27 @@ export class GameMapSystem implements ISystem {
       if (position.outgoingAreaButMeMessages.length) {
         const conn = entity.getComponentOrNull(Connection);
         if (conn) {
-          this.sendToAreaBut(position.x, position.y, position.outgoingAreaButMeMessages, conn.connectionId);
+          this.sendToAreaBut(
+            position.x,
+            position.y,
+            position.outgoingAreaButMeMessages,
+            conn.connectionId
+          );
         } else {
-          this.sendToArea(position.x, position.y, position.outgoingAreaButMeMessages);
+          this.sendToArea(
+            position.x,
+            position.y,
+            position.outgoingAreaButMeMessages
+          );
         }
         position.outgoingAreaButMeMessages.length = 0;
       }
 
       if (data) {
-        this.sendToArea(position.x, position.y, [data, ...position.outgoingAreaMessages]);
+        this.sendToArea(position.x, position.y, [
+          data,
+          ...position.outgoingAreaMessages,
+        ]);
       } else if (position.outgoingAreaMessages.length) {
         this.sendToArea(position.x, position.y, position.outgoingAreaMessages);
       }
@@ -80,15 +100,25 @@ export class GameMapSystem implements ISystem {
     }
   }
 
-  private presentEntity(entity: IEntity, force: true): Partial<OutgoingMessages>;
-  private presentEntity(entity: IEntity, force: false): Partial<OutgoingMessages> | null;
-  private presentEntity(entity: IEntity, force = false): Partial<OutgoingMessages> | null {
+  private presentEntity(
+    entity: IEntity,
+    force: true
+  ): Partial<OutgoingMessages>;
+  private presentEntity(
+    entity: IEntity,
+    force: false
+  ): Partial<OutgoingMessages> | null;
+  private presentEntity(
+    entity: IEntity,
+    force = false
+  ): Partial<OutgoingMessages> | null {
     let hasContent = false;
 
     const position = entity.getComponent(WorldPosition);
     const body = entity.getComponentOrNull(Body);
     const heading = entity.getComponentOrNull(HeadingComponent);
     const fx = entity.getComponentOrNull(Fx);
+    const status = entity.getComponentOrNull(CharStatus);
 
     const ret: Partial<OutgoingMessages> = {};
 
@@ -129,7 +159,11 @@ export class GameMapSystem implements ISystem {
     }
 
     if (position && (force || position.dirty)) {
-      ret.UpdatePosition = { entityId: entity.uuid, x: position.x, y: position.y };
+      ret.UpdatePosition = {
+        entityId: entity.uuid,
+        x: position.x,
+        y: position.y,
+      };
       if (!force) position.dirty = false;
       hasContent = true;
     }
@@ -143,6 +177,18 @@ export class GameMapSystem implements ISystem {
     if (fx && (force || fx.dirty)) {
       ret.Fx = { entityId: entity.uuid, fx: fx.fx, loops: fx.loops };
       if (!force) fx.dirty = false;
+      hasContent = true;
+    }
+
+    if (status && (force || status.dirty)) {
+      ret.Status = {
+        entityId: entity.uuid,
+        paralyzed: status.paralyzed,
+        invisible: status.invisible,
+        dumb: status.dumb,
+        blind: status.blind,
+      };
+      if (!force) status.dirty = false;
       hasContent = true;
     }
 
@@ -173,11 +219,19 @@ export class GameMapSystem implements ISystem {
 
       // send all the entities in the map to the player
       for (var p of this.mapEntities.entities) {
-        sendMessageObservable.notifyObservers({ connectionIds: [connectionId], data: this.presentEntity(p, true) });
+        sendMessageObservable.notifyObservers({
+          connectionIds: [connectionId],
+          data: this.presentEntity(p, true),
+        });
       }
 
       // send the entity to all the connections but them, they had this already
-      this.sendToAreaBut(x, y, [this.presentEntity(entity, true)], connectionId);
+      this.sendToAreaBut(
+        x,
+        y,
+        [this.presentEntity(entity, true)],
+        connectionId
+      );
 
       // tell the user which character they control
       sendMessageObservable.notifyObservers({
@@ -227,7 +281,12 @@ export class GameMapSystem implements ISystem {
     }
   }
 
-  private sendToArea(x: number, y: number, dataChunks: Array<Partial<OutgoingMessages>>, reliable = true) {
+  private sendToArea(
+    x: number,
+    y: number,
+    dataChunks: Array<Partial<OutgoingMessages>>,
+    reliable = true
+  ) {
     const connectionIds: string[] = [];
 
     for (let e of this.connectedEntities.entities) {
@@ -240,7 +299,10 @@ export class GameMapSystem implements ISystem {
     }
   }
 
-  private sendToAll(dataChunks: Array<Partial<OutgoingMessages>>, reliable = true) {
+  private sendToAll(
+    dataChunks: Array<Partial<OutgoingMessages>>,
+    reliable = true
+  ) {
     const connectionIds: string[] = [];
 
     for (let e of this.connectedEntities.entities) {

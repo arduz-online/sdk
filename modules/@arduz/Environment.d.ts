@@ -2,6 +2,7 @@ declare module "@arduz/Environment" {
   export type BootstrapData = {
     name: string;
     main: string;
+    baseUrl: string;
     fps: number;
   };
   export function getBootstrapData(): Promise<BootstrapData>;

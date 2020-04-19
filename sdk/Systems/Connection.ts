@@ -6,7 +6,11 @@ import {
 } from "../Components/Connection";
 import type { IncomingMessages, OutgoingMessages } from "@arduz/Connections";
 import { Character } from "../Components/Character";
-import { charUsesItem, charMoveItems } from "../Events/CharEvents";
+import {
+  charUsesItem,
+  charMoveItems,
+  charMoveSkills,
+} from "../Events/CharEvents";
 import {
   handleMapClick,
   handleAttack,
@@ -15,6 +19,7 @@ import {
   handleTalk,
   handleSetHeading,
   handleWalk,
+  handleRequestPosition,
 } from "../Functions/networkHandlers";
 import { Skills } from "../Components/Skills";
 import { Inventory } from "../Components/Inventory";
@@ -22,6 +27,7 @@ import { CharStats } from "../Components/Stats";
 import { Archetypes } from "../Components/Archetype";
 import { Timers } from "../Components/Timers";
 import { RequestedTarget } from "../Components/RequestTarget";
+import { isSkillSlot } from "../AtomicHelpers/Slots";
 
 /**
  * @public
@@ -53,7 +59,11 @@ export class ConnectionSystem implements ISystem {
 
   activate(engine: Engine) {
     engine.eventManager.addListener(ComponentAdded, this, this.componentAdded);
-    engine.eventManager.addListener(ComponentRemoved, this, this.componentRemoved);
+    engine.eventManager.addListener(
+      ComponentRemoved,
+      this,
+      this.componentRemoved
+    );
 
     this.connection.onMessage.add((m) => {
       for (let i in m) {
@@ -63,7 +73,10 @@ export class ConnectionSystem implements ISystem {
           if (conn && conn.entityId) {
             const entity = engine.entities[conn.entityId!];
             if (entity) {
-              onMessageObservable.notifyObservers({ entity: entity as Entity, data: m });
+              onMessageObservable.notifyObservers({
+                entity: entity as Entity,
+                data: m,
+              });
             }
           } else {
             log("Unknown entity in connection", connectionId);
@@ -82,19 +95,38 @@ export class ConnectionSystem implements ISystem {
 
     onMessageObservable.add(({ entity, data }) => {
       if (entity instanceof Character) {
-        if (data.UseItem) {
-          charUsesItem(entity, data.UseItem.slot);
-        }
-        if (data.UseSkill) {
-          handleUseSkill(entity, data.UseSkill.slot);
+        if (data.UseSlot) {
+          if (isSkillSlot(data.UseSlot.slot)) {
+            handleUseSkill(entity, data.UseSlot.slot);
+          } else {
+            charUsesItem(entity, data.UseSlot.slot);
+          }
         }
 
         if (data.Walk) {
           handleWalk(entity, data.Walk.heading);
         }
 
-        if (data.MoveItem) {
-          charMoveItems(entity, data.MoveItem.from, data.MoveItem.to, false);
+        if (data.MoveSlot) {
+          if (
+            isSkillSlot(data.MoveSlot.from) == isSkillSlot(data.MoveSlot.to)
+          ) {
+            if (isSkillSlot(data.MoveSlot.from)) {
+              charMoveSkills(
+                entity,
+                data.MoveSlot.from,
+                data.MoveSlot.to,
+                false
+              );
+            } else {
+              charMoveItems(
+                entity,
+                data.MoveSlot.from,
+                data.MoveSlot.to,
+                false
+              );
+            }
+          }
         }
 
         if (data.ClickMap) {
@@ -105,9 +137,13 @@ export class ConnectionSystem implements ISystem {
           handleAttack(entity);
         }
 
-        // if (data.Hide) {
-        //   handleHide(entity);
-        // }
+        if (data.RequestPosition) {
+          handleRequestPosition(entity);
+        }
+
+        if (data.Hide) {
+          //   handleHide(entity);
+        }
 
         if (data.Meditate) {
           handleMeditate(entity);
@@ -139,7 +175,10 @@ export class ConnectionSystem implements ISystem {
       const data = this.updatePlayerStats(entity);
       const connection = data && entity.getComponent(Connection);
       if (data) {
-        sendMessageObservable.notifyObservers({ connectionIds: [connection!.connectionId], data });
+        sendMessageObservable.notifyObservers({
+          connectionIds: [connection!.connectionId],
+          data,
+        });
       }
     }
   }

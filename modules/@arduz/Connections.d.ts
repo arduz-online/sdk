@@ -34,11 +34,24 @@ declare module "@arduz/Connections" {
       | { messageId: number; map?: Record<string, string>; color?: number }
       | { message: string; map?: Record<string, string>; color?: number };
     SelectCharacter: {};
-    Talk: { entityId: string; message: string; console?: boolean; color?: number; nick: string };
+    Talk: {
+      entityId: string;
+      message: string;
+      console?: boolean;
+      color?: number;
+      nick: string;
+    };
     CharMove: { entityId: string; x: number; y: number; heading: number };
     Hit: { x: number; y: number; text: string; color: number };
     Sound: { x: number; y: number; sound: number };
-    Projectile: { x: number; y: number; sound: number; destX: number; destY: number; graphic: number };
+    Projectile: {
+      x: number;
+      y: number;
+      sound: number;
+      destX: number;
+      destY: number;
+      graphic: number;
+    };
     WeaponSwing: { entityId: string; weaponSlot: number; sound: number };
     Fx: { entityId: string; fx: number; loops: number };
 
@@ -103,6 +116,7 @@ declare module "@arduz/Connections" {
     };
 
     Status: {
+      entityId: string;
       paralyzed: boolean;
       invisible: boolean;
       blind: boolean;
@@ -111,7 +125,11 @@ declare module "@arduz/Connections" {
 
     Skills: { skills: ReadonlyArray<BasicSkill> };
     Inventory: { items: ReadonlyArray<BasicItem> };
-    Archetypes: { archetypes: ReadonlyArray<BasicArchetype>; alignments: ReadonlyArray<BasicAlignment> };
+
+    Archetypes: {
+      archetypes: ReadonlyArray<BasicArchetype>;
+      alignments: ReadonlyArray<BasicAlignment>;
+    };
   };
 
   export type IncomingMessages = {
@@ -120,19 +138,25 @@ declare module "@arduz/Connections" {
     Meditate: { connectionId: string };
     Attack: { connectionId: string };
     Hide: { connectionId: string };
-    UseItem: { connectionId: string; slot: number };
-    UseSkill: { connectionId: string; slot: number };
-    MoveItem: { connectionId: string; from: number; to: number };
-    MoveSkill: { connectionId: string; from: number; to: number };
+    UseSlot: { connectionId: string; slot: number };
+    MoveSlot: { connectionId: string; from: number; to: number };
     ClickMap: { connectionId: string; x: number; y: number };
     RequestCharacterList: { connectionId: string };
     MapLoaded: { connectionId: string };
     Walk: { connectionId: string; heading: number };
     SetHeading: { connectionId: string; heading: number };
+    RequestPosition: { connectionId: string };
   };
 
-  export function send(connectionIds: string[], data: Partial<OutgoingMessages>, reliable?: boolean): Promise<void>;
-  export function disconnect(connectionId: string, reason: string): Promise<void>;
+  export function send(
+    connectionIds: string[],
+    data: Partial<OutgoingMessages>,
+    reliable?: boolean
+  ): Promise<void>;
+  export function disconnect(
+    connectionId: string,
+    reason: string
+  ): Promise<void>;
 
   export const onInitialize: Observable<{ connectionId: string; nick: string }>;
   export const onDisconnected: Observable<{ connectionId: string }>;

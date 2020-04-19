@@ -1,8 +1,19 @@
-import { WeaponItem, KnownSounds, SheldItem, ObjectTypes, Ability } from "../Declares";
+import {
+  WeaponItem,
+  KnownSounds,
+  SheldItem,
+  ObjectTypes,
+  Ability,
+} from "../Declares";
 import { Character } from "../Components/Character";
 import { getCharShield, getCharWeapon } from "../Functions/Helpers";
-import { getClassModifier, getRaceModifier, userEvasion, userAccuracy } from "../Balance";
-import { sendDamage } from "./combatHelpers";
+import {
+  getClassModifier,
+  getRaceModifier,
+  userEvasion,
+  userAccuracy,
+} from "../Balance";
+import { sendDamage } from "../Functions/combatHelpers";
 import { CharAttacksChar } from "../Events/CharEvents";
 import { getRandomInteger, getRandomFloat } from "../AtomicHelpers/Numbers";
 import { Fx } from "../Components/Fx";
@@ -15,11 +26,19 @@ export class CombatSystem implements ISystem {
   active: boolean = false;
 
   activate(engine: Engine) {
-    engine.eventManager.addListener(CharAttacksChar, this, this.charAttacksChar);
+    engine.eventManager.addListener(
+      CharAttacksChar,
+      this,
+      this.charAttacksChar
+    );
     log("CombatSystem started");
   }
 
-  private charImpactsChar(weapon: WeaponItem | null, attacker: Character, victim: Character): boolean {
+  private charImpactsChar(
+    weapon: WeaponItem | null,
+    attacker: Character,
+    victim: Character
+  ): boolean {
     const shield = getCharShield(victim);
     const victimModifiers = getClassModifier(victim.body.charClass);
     const attackerModifiers = getClassModifier(attacker.body.charClass);
@@ -48,23 +67,34 @@ export class CombatSystem implements ISystem {
       if (weapon) {
         attacker.position.sendWeaponSwing(
           attacker,
-          attacker.body.isLeftHandWeapon ? InventorySlots.LeftHand : InventorySlots.RightHand,
+          attacker.body.isLeftHandWeapon
+            ? InventorySlots.LeftHand
+            : InventorySlots.RightHand,
           KnownSounds.SWING
         );
       } else {
-        attacker.position.sendWeaponSwing(attacker, InventorySlots.NONE, KnownSounds.SWING);
+        attacker.position.sendWeaponSwing(
+          attacker,
+          InventorySlots.NONE,
+          KnownSounds.SWING
+        );
       }
 
       return false;
     } else if (shield) {
-      const shieldChances = HIT_CHANCE_BASE * victimModifiers.shield * (shield.item as SheldItem).max_modifier;
+      const shieldChances =
+        HIT_CHANCE_BASE *
+        victimModifiers.shield *
+        (shield.item as SheldItem).max_modifier;
 
       if (getRandomInteger(1, 100) > shieldChances) {
         // 'Se rechazo el ataque con el escudo
         attacker.sendConsoleMessage("The attack was rejected with a shield");
         attacker.position.sendWeaponSwing(
           victim,
-          victim.body.isLeftHandWeapon ? InventorySlots.RightHand : InventorySlots.LeftHand,
+          victim.body.isLeftHandWeapon
+            ? InventorySlots.RightHand
+            : InventorySlots.LeftHand,
           KnownSounds.SHIELD
         );
 
@@ -76,17 +106,25 @@ export class CombatSystem implements ISystem {
       if (weapon && weapon.projectile) {
         attacker.position.sendWeaponSwing(
           attacker,
-          attacker.body.isLeftHandWeapon ? InventorySlots.LeftHand : InventorySlots.RightHand,
+          attacker.body.isLeftHandWeapon
+            ? InventorySlots.LeftHand
+            : InventorySlots.RightHand,
           KnownSounds.IMPACT2
         );
       } else if (weapon) {
         attacker.position.sendWeaponSwing(
           attacker,
-          attacker.body.isLeftHandWeapon ? InventorySlots.LeftHand : InventorySlots.RightHand,
+          attacker.body.isLeftHandWeapon
+            ? InventorySlots.LeftHand
+            : InventorySlots.RightHand,
           KnownSounds.IMPACT
         );
       } else {
-        attacker.position.sendWeaponSwing(victim, InventorySlots.NONE, KnownSounds.IMPACT);
+        attacker.position.sendWeaponSwing(
+          victim,
+          InventorySlots.NONE,
+          KnownSounds.IMPACT
+        );
       }
 
       victim.getComponentOrCreate(Fx).set(BLOOD_FX, 1);
@@ -99,7 +137,9 @@ export class CombatSystem implements ISystem {
     const { attacker, victim, projectile } = event;
 
     if (attacker === victim) {
-      attacker.sendConsoleMessage(ConsoleMessages["You can't attack yourself!"]);
+      attacker.sendConsoleMessage(
+        ConsoleMessages["You can't attack yourself!"]
+      );
       return;
     }
 
@@ -113,18 +153,21 @@ export class CombatSystem implements ISystem {
     }
 
     if (victim.body.dead) {
-      attacker.sendConsoleMessage(ConsoleMessages["You can't attack dead characters!"]);
+      attacker.sendConsoleMessage(
+        ConsoleMessages["You can't attack dead characters!"]
+      );
       return;
     }
 
     const timers = attacker.timers;
 
-    if (!timers.canAttack()) {
-      timers.didAttack();
+    if (!timers.canUseBow(false)) {
       return;
     }
 
-    timers.didAttack();
+    if (timers.canSkillAttack()) {
+      return;
+    }
 
     // TODO: check distance
     // TODO: check interval
@@ -134,7 +177,9 @@ export class CombatSystem implements ISystem {
     const weapon = getCharWeapon(attacker);
 
     if (weapon && weapon.projectile != projectile) {
-      attacker.sendConsoleMessage(ConsoleMessages["You can't use that weapon that way!"]);
+      attacker.sendConsoleMessage(
+        ConsoleMessages["You can't use that weapon that way!"]
+      );
       return;
     }
 
@@ -148,17 +193,22 @@ export class CombatSystem implements ISystem {
     const partOfBody = getRandomInteger(1, 6); // 1 == head
 
     if (partOfBody === 1 /*head*/) {
-      const helmet = victim.inventory && victim.inventory.getItem(InventorySlots.Head);
+      const helmet =
+        victim.inventory && victim.inventory.getItem(InventorySlots.Head);
 
       if (helmet && helmet.item.object_type == ObjectTypes.Helmet) {
-        absorbedDamage = getRandomFloat(helmet.item.min_defense, helmet.item.max_defense);
+        absorbedDamage = getRandomFloat(
+          helmet.item.min_defense,
+          helmet.item.max_defense
+        );
         absorbedDamage = absorbedDamage - resist;
         damage.damage = damage.damage - absorbedDamage;
 
         if (damage.damage < 1) damage.damage = 1;
       }
     } else {
-      const armor = victim.inventory && victim.inventory.getItem(InventorySlots.Armor);
+      const armor =
+        victim.inventory && victim.inventory.getItem(InventorySlots.Armor);
 
       const shield = getCharShield(victim);
 
@@ -169,7 +219,10 @@ export class CombatSystem implements ISystem {
             armor.item.max_defense + shield.item.max_defense
           );
         } else {
-          absorbedDamage = getRandomFloat(armor.item.min_defense, armor.item.max_defense);
+          absorbedDamage = getRandomFloat(
+            armor.item.min_defense,
+            armor.item.max_defense
+          );
         }
 
         absorbedDamage = absorbedDamage - resist;
@@ -185,7 +238,11 @@ export class CombatSystem implements ISystem {
     sendDamage(attacker, victim, damage.damage);
   }
 
-  private calculateDamage(weapon: WeaponItem | null, attacker: Character, victim: Character) {
+  private calculateDamage(
+    weapon: WeaponItem | null,
+    attacker: Character,
+    victim: Character
+  ) {
     const attackerClassModifiers = getClassModifier(attacker.body.charClass);
     const attackerRaceModifiers = getRaceModifier(attacker.body.race);
 
@@ -205,10 +262,14 @@ export class CombatSystem implements ISystem {
 
         weaponDamage = getRandomFloat(weapon.min_hit, weapon.max_hit);
 
-        const projectile = attacker.inventory && attacker.inventory.getItem(InventorySlots.Accessory);
+        const projectile =
+          attacker.inventory &&
+          attacker.inventory.getItem(InventorySlots.Accessory);
 
         if (projectile && projectile.item.object_type === ObjectTypes.Arrows) {
-          weaponDamage = weaponDamage + getRandomFloat(projectile.item.min_hit, projectile.item.max_hit);
+          weaponDamage =
+            weaponDamage +
+            getRandomFloat(projectile.item.min_hit, projectile.item.max_hit);
         }
       } else {
         weaponTypeModifier = attackerClassModifiers.melee_dmg;
@@ -216,7 +277,9 @@ export class CombatSystem implements ISystem {
       }
     }
 
-    const abilityModifier = attackerRaceModifiers[typeModifier] * attacker.stats.getAbilityMultiplier(typeModifier);
+    const abilityModifier =
+      attackerRaceModifiers[typeModifier] *
+      attacker.stats.getAbilityMultiplier(typeModifier);
 
     // const tmpDamage = getRandomInteger(attacker.minHit, attacker.maxHit);
     // TODO skills

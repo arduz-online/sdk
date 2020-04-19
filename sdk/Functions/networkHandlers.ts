@@ -1,7 +1,19 @@
 import { Character } from "../Components/Character";
-import { RequestedTarget, requestTargetFor, cancelCasting } from "../Components/RequestTarget";
-import { charUsesSkill, charUsesItem, charAttacksEntity } from "../Events/CharEvents";
-import { isMeditating, stopMeditating, startMeditating } from "../Components/Meditation";
+import {
+  RequestedTarget,
+  requestTargetFor,
+  cancelCasting,
+} from "../Components/RequestTarget";
+import {
+  charUsesSkill,
+  charUsesItem,
+  charAttacksEntity,
+} from "../Events/CharEvents";
+import {
+  isMeditating,
+  stopMeditating,
+  startMeditating,
+} from "../Components/Meditation";
 import { SkillTarget, KnownSounds } from "../Declares";
 import { isSkillSlot } from "../AtomicHelpers/Slots";
 import { headToPos } from "../AtomicHelpers/HeadToPos";
@@ -9,20 +21,47 @@ import { Walking } from "../Components/Walking";
 import { entitiesInPosition } from "../Components/WorldPosition";
 import { HeadingComponent } from "../Components/Heading";
 import { TargetType, ConsoleMessages, InventorySlots, Heading } from "../Enums";
+import { Timers } from "../Components/Timers";
 
 export function handleMapClick(char: Character, x: number, y: number) {
   const requestedTarget = char.getComponentOrNull(RequestedTarget);
+  const timers = char.getComponentOrNull(Timers);
 
   if (requestedTarget) {
+    cancelCasting(char);
+
     const isSkill = isSkillSlot(requestedTarget.slot);
 
     if (isSkill) {
+      // skills and spells
+      if (timers) {
+        // Check bows interval
+        if (!timers.canUseBow(false)) return;
+
+        // Check Hit-Spell interval
+        if (!timers.canAttackSkill()) {
+          // Check Magic interval
+          if (!timers.canSpell()) {
+            return;
+          }
+        }
+      }
+
       charUsesSkill(char, requestedTarget.slot, x, y);
-    } else if (!isSkill) {
+    } else {
+      // inventory items
+
+      if (timers) {
+        // Check attack interval
+        if (!timers.canAttack(false)) return;
+        // Check Magic interval
+        if (!timers.canSpell(false)) return;
+        // Check bow's interval
+        if (!timers.canUseBow()) return;
+      }
+
       charUsesItem(char, requestedTarget.slot, x, y);
     }
-
-    cancelCasting(char);
   } else {
     for (let entity of entitiesInPosition(x, y)) {
       if (entity instanceof Character) {
@@ -51,14 +90,21 @@ export function handleUseSkill(char: Character, slot: number) {
   const skill = mySkills.getItem(slot);
   if (!skill) return;
 
-  const targetType = skill.target === SkillTarget.Terrain ? TargetType.Floor : TargetType.Char;
+  const targetType =
+    skill.target === SkillTarget.Terrain ? TargetType.Floor : TargetType.Char;
 
   requestTargetFor(char, targetType, slot);
 }
 
+export function handleRequestPosition(char: Character) {
+  char.notifyUpdatedPosition();
+}
+
 export function handleAttack(char: Character) {
   if (char.body.dead) {
-    char.sendConsoleMessage(ConsoleMessages["You can't attack because you are dead!"]);
+    char.sendConsoleMessage(
+      ConsoleMessages["You can't attack because you are dead!"]
+    );
     return;
   }
 
@@ -105,7 +151,11 @@ export function handleMeditate(char: Character) {
   }
 }
 
-export function handleTalk(char: Character, message: string, color: number = 0xffffff) {
+export function handleTalk(
+  char: Character,
+  message: string,
+  color: number = 0xffffff
+) {
   char.talk(message, color);
 }
 

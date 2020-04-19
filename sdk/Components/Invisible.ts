@@ -1,3 +1,5 @@
+import { CharStatus } from "./CharStatus";
+
 @Component("Invisible")
 export class Invisible extends ObservableComponent {
   end = 0;
@@ -5,15 +7,12 @@ export class Invisible extends ObservableComponent {
 
 export function setInvisible(entity: IEntity) {
   const inv = entity.getComponentOrCreate(Invisible);
-
-  if (inv.end == 0) {
-    // this.sendConsoleMessage("You are now invisible.");
-  }
-
   inv.end = 15;
+  entity.getComponentOrCreate(CharStatus).invisible = true
 }
 
 export function setVisible(entity: IEntity) {
+  entity.getComponentOrCreate(CharStatus).invisible = false
   return entity.removeComponent(Invisible)
 }
 

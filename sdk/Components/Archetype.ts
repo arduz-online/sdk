@@ -1,5 +1,5 @@
 import { CharacterDescription } from "../Declares";
-import { BasicAlignment } from "@arduz/Connections";
+import type { BasicAlignment } from "@arduz/Connections";
 
 @Component("Archetypes")
 export class Archetypes extends ObservableComponent {

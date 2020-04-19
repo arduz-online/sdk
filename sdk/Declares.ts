@@ -55,6 +55,8 @@ export const DEFAULT_TIMERS = {
   USE_BOW: 1400,
   THROW_SPELL: 1400,
   ATTACK: 1500,
+  ATTACK_SPELL: 1100,
+  SPELL_ATTACK: 1000
 };
 
 // Known sounds

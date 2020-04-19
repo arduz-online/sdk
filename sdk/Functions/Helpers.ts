@@ -8,24 +8,28 @@ import { CharStats } from "../Components/Stats";
 import { isSkillSlot } from "../AtomicHelpers/Slots";
 import { InventorySlots } from "../Enums";
 
-export function canDrop(originSlot: number, targetSlot: number): boolean {
-  if (targetSlot === InventorySlots.NONE) return false;
-  if (originSlot === InventorySlots.NONE) return false;
-  return isSkillSlot(originSlot) === isSkillSlot(targetSlot);
-}
+export function getCharWeapon(char: IEntity) {
+  const body = char.getComponentOrNull(Body);
+  const inventory = char.getComponentOrNull(Inventory);
 
-export function getCharWeapon(char: Character) {
-  let leftOrRight: InventorySlots.NONE | InventorySlots.LeftHand | InventorySlots.RightHand = InventorySlots.NONE;
+  if (!body) return null;
+  if (!inventory) return null;
 
-  if (char.body.isLeftHandWeapon && char.body.isRightHandWeapon) {
-    leftOrRight = Math.random() > 0.5 ? InventorySlots.LeftHand : InventorySlots.RightHand;
-  } else if (char.body.isLeftHandWeapon) {
+  let leftOrRight:
+    | InventorySlots.NONE
+    | InventorySlots.LeftHand
+    | InventorySlots.RightHand = InventorySlots.NONE;
+
+  if (body.isLeftHandWeapon && body.isRightHandWeapon) {
+    leftOrRight =
+      Math.random() > 0.5 ? InventorySlots.LeftHand : InventorySlots.RightHand;
+  } else if (body.isLeftHandWeapon) {
     leftOrRight = InventorySlots.LeftHand;
-  } else if (char.body.isRightHandWeapon) {
+  } else if (body.isRightHandWeapon) {
     leftOrRight = InventorySlots.RightHand;
   }
 
-  const weapon = char.inventory && char.inventory.getItem(leftOrRight);
+  const weapon = inventory.getItem(leftOrRight);
 
   if (leftOrRight !== InventorySlots.NONE && weapon) {
     return weapon.item as WeaponItem;
@@ -34,20 +38,33 @@ export function getCharWeapon(char: Character) {
   return null;
 }
 
-export function getCharShield(char: Character) {
-  let leftOrRight: InventorySlots.NONE | InventorySlots.LeftHand | InventorySlots.RightHand = InventorySlots.NONE;
+export function getCharShield(char: IEntity) {
+  const body = char.getComponentOrNull(Body);
+  const inventory = char.getComponentOrNull(Inventory);
 
-  if (char.body.isLeftHandWeapon && char.body.isRightHandWeapon) {
+  if (!body) return null;
+  if (!inventory) return null;
+
+  let leftOrRight:
+    | InventorySlots.NONE
+    | InventorySlots.LeftHand
+    | InventorySlots.RightHand = InventorySlots.NONE;
+
+  if (body.isLeftHandWeapon && body.isRightHandWeapon) {
     leftOrRight = InventorySlots.NONE;
-  } else if (char.body.isLeftHandWeapon) {
+  } else if (body.isLeftHandWeapon) {
     leftOrRight = InventorySlots.RightHand;
-  } else if (char.body.isRightHandWeapon) {
+  } else if (body.isRightHandWeapon) {
     leftOrRight = InventorySlots.LeftHand;
   }
 
-  const shield = char.inventory && char.inventory.getItem(leftOrRight);
+  const shield = inventory.getItem(leftOrRight);
 
-  if (leftOrRight !== InventorySlots.NONE && shield && shield.item.object_type === ObjectTypes.Shield) {
+  if (
+    leftOrRight !== InventorySlots.NONE &&
+    shield &&
+    shield.item.object_type === ObjectTypes.Shield
+  ) {
     return shield;
   }
 

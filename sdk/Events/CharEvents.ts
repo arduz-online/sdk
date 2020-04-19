@@ -60,3 +60,19 @@ export class MoveItems {
 export function charMoveItems(char: Character, from: number, to: number, sendMessages: boolean) {
   engine.eventManager.fireEvent(new MoveItems(char, from, to, sendMessages));
 }
+
+// ------------------------------------------------------------------
+
+@EventConstructor()
+export class MoveSkills {
+  constructor(
+    public readonly char: Character,
+    public readonly from: number,
+    public readonly to: number,
+    public readonly sendMessages: boolean
+  ) {}
+}
+
+export function charMoveSkills(char: Character, from: number, to: number, sendMessages: boolean) {
+  engine.eventManager.fireEvent(new MoveSkills(char, from, to, sendMessages));
+}

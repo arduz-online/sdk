@@ -1,7 +1,7 @@
 import { Skill, SkillTarget, ObjectTypes } from "../Declares";
 import { getCharWeapon } from "../Functions/Helpers";
 import { Character } from "../Components/Character";
-import { sendDamage } from "./combatHelpers";
+import { sendDamage } from "../Functions/combatHelpers";
 import { Skills, canCastSpell } from "../Components/Skills";
 import { stopMeditating, isMeditating } from "../Components/Meditation";
 import { setInvisible, setVisible } from "../Components/Invisible";
@@ -11,7 +11,6 @@ import { getRandomInteger } from "../AtomicHelpers/Numbers";
 import { entitiesInPosition } from "../Components/WorldPosition";
 import { Fx } from "../Components/Fx";
 import { Mimetism } from "../Components/Mimetism";
-import { Timers } from "../Components/Timers";
 import { InventorySlots, CharClass } from "../Enums";
 
 export class SkillSystem implements ISystem {
@@ -26,16 +25,6 @@ export class SkillSystem implements ISystem {
     const skills = char.getComponentOrNull(Skills);
 
     if (isMeditating(char)) return;
-
-    const timers = char.getComponentOrNull(Timers);
-
-    if (timers) {
-      if (!timers.canSpell()) {
-        timers.didSpell();
-        return;
-      }
-      timers.didSpell();
-    }
 
     if (skills) {
       const spell = skills.getItem(slot);
