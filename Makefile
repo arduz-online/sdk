@@ -25,8 +25,6 @@ update_ulla:
 
 # links dependencies, builds itself and expose linked module
 link:
-	npm link ulla-builder
-	npm link ulla-ecs
 	$(MAKE) build
 	npm link
 
