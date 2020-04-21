@@ -3,6 +3,7 @@ import {
   sendMessageObservable,
   closeConnectionObservable,
   onMessageObservable,
+  onDisconnection,
 } from "../Components/Connection";
 import type { IncomingMessages, OutgoingMessages } from "@arduz/Connections";
 import { Character } from "../Components/Character";
@@ -82,6 +83,20 @@ export class ConnectionSystem implements ISystem {
             log("Unknown entity in connection", connectionId);
           }
         }
+      }
+    });
+
+    this.connection.onDisconnected.add(({ connectionId }) => {
+      const connection = this.handlerMap[connectionId];
+
+      if (connection && connection.entityId) {
+        const entity = engine.entities[connection.entityId!];
+
+        if (entity) {
+          entity.removeComponent(connection);
+        }
+
+        onDisconnection.notifyObservers({ entity, connection });
       }
     });
 
