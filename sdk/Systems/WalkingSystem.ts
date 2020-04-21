@@ -134,11 +134,11 @@ export class WalkingSystem implements ISystem {
   ): Heading | null {
     const dual: number = getRandomInteger(0, 10);
 
-    const movementStrategy: number =
-      srcX == dstX && srcY == dstY ? 3 : getRandomInteger(2, 3);
+    const directWalk: boolean =
+      srcX == dstX && srcY == dstY ? false : getRandomInteger(0, 4) != 0;
 
     //  Levanto las coordenadas del destino
-    if (movementStrategy == 2) {
+    if (directWalk) {
       //  moverse
       if (srcX > dstX) {
         if (srcY < dstY) {
@@ -313,7 +313,7 @@ export class WalkingSystem implements ISystem {
         }
       }
     }
-    const randomDirection: Heading = getRandomInteger(1, 3) as Heading;
+    const randomDirection: Heading = getRandomInteger(0, 3) as Heading;
 
     if (this.canUserMove(srcX, srcY, randomDirection)) {
       return randomDirection;

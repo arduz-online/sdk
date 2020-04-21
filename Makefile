@@ -24,9 +24,12 @@ update_ulla:
 	npm i -D ulla-builder@next ulla-ecs@next
 
 # links dependencies, builds itself and expose linked module
-link:
+link: update_ulla
+	npm install
 	$(MAKE) build
 	npm link
+	npm link ulla-ecs
+	npm link ulla-builder
 
 watch: watch_sources
 
