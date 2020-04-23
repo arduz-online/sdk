@@ -10,6 +10,7 @@ install_ubuntu: install
 
 install:
 	npm install
+	npm i -S ulla-builder@next ulla-ecs@next
 
 build: export NODE_ENV=production
 build:
@@ -19,6 +20,9 @@ build:
 watch_sources: export NODE_ENV=development
 watch_sources:
 	$(BUILDER) --watch
+
+link-builder:
+	ln -svfh ../../../ulla/packages/ulla-builder/index.js node_modules/.bin/ulla-builder
 
 update_ulla:
 	npm i -D ulla-builder@next ulla-ecs@next
